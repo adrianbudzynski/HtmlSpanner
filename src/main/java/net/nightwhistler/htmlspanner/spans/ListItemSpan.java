@@ -62,6 +62,7 @@ public class ListItemSpan implements LeadingMarginSpan {
                                   int baseline, int bottom, CharSequence text, int start, int end,
                                   boolean first, Layout l) {
         if (((Spanned) text).getSpanStart(this) == start) {
+            x = 0; //NOTE: DIRTY HACK
             Paint.Style style = p.getStyle();
 
             p.setStyle(Paint.Style.FILL);
