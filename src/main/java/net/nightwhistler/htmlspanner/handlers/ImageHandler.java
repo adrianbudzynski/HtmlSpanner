@@ -20,6 +20,7 @@ import java.net.URL;
 
 import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.utils.ParseUtils;
 
 import org.htmlcleaner.TagNode;
 
@@ -43,20 +44,18 @@ import android.text.style.ImageSpan;
 public class ImageHandler extends TagNodeHandler {
 
 	@Override
-	public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-			int start, int end, SpanStack stack) {
+	public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, SpanStack stack) {
 		String src = node.getAttributeByName("src");
-
-		builder.append("\uFFFC");
-
-		Bitmap bitmap = loadBitmap(src);
-
-		if (bitmap != null) {
-			Drawable drawable = new BitmapDrawable(bitmap);
-			drawable.setBounds(0, 0, bitmap.getWidth() - 1,
-					bitmap.getHeight() - 1);
-
-            stack.pushSpan( new ImageSpan(drawable), start, builder.length() );
+		String width = node.getAttributeByName("width");
+		String height = node.getAttributeByName("height");
+		builder.append("￼");
+		Bitmap bitmap = this.loadBitmap(src);
+		if(bitmap != null) {
+			BitmapDrawable drawable = new BitmapDrawable(bitmap);
+			drawable.setBounds(0, 0,
+					ParseUtils.parseIntegerSafe(width, bitmap.getWidth() - 1),
+					ParseUtils.parseIntegerSafe(height, bitmap.getHeight() - 1));
+			stack.pushSpan(new ImageSpan(drawable), start, builder.length());
 		}
 	}
 
