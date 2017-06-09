@@ -469,7 +469,7 @@ public class CSSCompiler {
                 return new StyleUpdater() {
                     @Override
                     public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setWidth( height );
+                        return style.setHeight( height );
                     }
                 };
             } else {

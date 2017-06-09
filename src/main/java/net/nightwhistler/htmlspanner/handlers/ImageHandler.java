@@ -20,9 +20,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
+import android.util.Log;
 
 import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
+import net.nightwhistler.htmlspanner.css.CSSCompiler;
 import net.nightwhistler.htmlspanner.style.Style;
 import net.nightwhistler.htmlspanner.style.StyleValue;
 import net.nightwhistler.htmlspanner.utils.ParseUtils;
@@ -43,35 +45,14 @@ import java.net.URL;
  */
 public class ImageHandler extends TagNodeHandler {
 
-	Integer widthFromStyles;
-	Integer heightFromStyles;
-
-	@Override
-	public void beforeChildren(TagNode node, SpannableStringBuilder builder, SpanStack spanStack) {
-		super.beforeChildren(node, builder, spanStack);
-		Style useStyle = spanStack.getStyle( node, new Style() );
-
-		if(useStyle.getWidth() != null ) {
-			StyleValue styleValue = useStyle.getWidth();
-			if (styleValue.getUnit() == StyleValue.Unit.PX) {
-				if (styleValue.getIntValue() > 0 ) {
-					widthFromStyles = styleValue.getIntValue();
-				}
-			}
-		}
-
-		if(useStyle.getHeight() != null) {
-			StyleValue styleValue = useStyle.getHeight();
-			if (styleValue.getUnit() == StyleValue.Unit.PX) {
-				if (styleValue.getIntValue() > 0 ) {
-					heightFromStyles = styleValue.getIntValue();
-				}
-			}
-		}
-	}
-
 	@Override
 	public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, SpanStack stack) {
+		String styleAttr = node.getAttributeByName("style");
+		Style useStyle = this.parseStyleFromAttribute(new Style(), styleAttr);
+
+		StyleValue widthFromStyles = useStyle.getWidth();
+		StyleValue heightFromStyles = useStyle.getHeight();
+
 		String src = node.getAttributeByName("src");
 		String width = node.getAttributeByName("width");
 		String height = node.getAttributeByName("height");
@@ -80,8 +61,8 @@ public class ImageHandler extends TagNodeHandler {
 		if(bitmap != null) {
 			BitmapDrawable drawable = new BitmapDrawable(bitmap);
 			drawable.setBounds(0, 0,
-					widthFromStyles != null ? widthFromStyles : ParseUtils.parseIntegerSafe(width, bitmap.getWidth() - 1),
-					heightFromStyles != null ? heightFromStyles : ParseUtils.parseIntegerSafe(height, bitmap.getHeight() - 1));
+					widthFromStyles != null ? widthFromStyles.getIntValue() : ParseUtils.parseIntegerSafe(width, bitmap.getWidth() - 1),
+					heightFromStyles != null ? heightFromStyles.getIntValue() : ParseUtils.parseIntegerSafe(height, bitmap.getHeight() - 1));
 			stack.pushSpan(new ImageSpan(drawable), start, builder.length());
 		}
 	}
@@ -99,4 +80,30 @@ public class ImageHandler extends TagNodeHandler {
 			return null;
 		}
 	}
+
+	private Style parseStyleFromAttribute(Style baseStyle, String attribute) {
+		Style style = baseStyle;
+		String[] pairs = attribute.split(";");
+		String[] arr$ = pairs;
+		int len$ = pairs.length;
+
+		for(int i$ = 0; i$ < len$; ++i$) {
+			String pair = arr$[i$];
+			String[] keyVal = pair.split(":");
+			if(keyVal.length != 2) {
+				Log.e("StyleAttributeHandler", "Could not parse attribute: " + attribute);
+				return baseStyle;
+			}
+
+			String key = keyVal[0].toLowerCase().trim();
+			String value = keyVal[1].toLowerCase().trim();
+			CSSCompiler.StyleUpdater updater = CSSCompiler.getStyleUpdater(key, value);
+			if(updater != null) {
+				style = updater.updateStyle(style, this.getSpanner());
+			}
+		}
+
+		return style;
+	}
+
 }
