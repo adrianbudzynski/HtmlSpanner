@@ -21,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.util.Log;
+import android.util.LruCache;
 
 import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
@@ -45,6 +46,19 @@ import java.net.URL;
  */
 public class ImageHandler extends TagNodeHandler {
 
+	private LruCache<String, Bitmap> mMemoryCache;
+
+	public ImageHandler() {
+		final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		final int cacheSize = maxMemory / 8;
+		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+				return bitmap.getByteCount() / 1024;
+			}
+		};
+	}
+
 	@Override
 	public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, SpanStack stack) {
 		String styleAttr = node.getAttributeByName("style");
@@ -67,21 +81,10 @@ public class ImageHandler extends TagNodeHandler {
 		}
 	}
 
-	/**
-	 * Loads a Bitmap from the given url.
-	 * 
-	 * @param url
-	 * @return a Bitmap, or null if it could not be loaded.
-	 */
-	protected Bitmap loadBitmap(String url) {
-		try {
-			return BitmapFactory.decodeStream(new URL(url).openStream());
-		} catch (IOException io) {
-			return null;
-		}
-	}
-
 	private Style parseStyleFromAttribute(Style baseStyle, String attribute) {
+		if(attribute == null) {
+			return baseStyle;
+		}
 		Style style = baseStyle;
 		String[] pairs = attribute.split(";");
 		String[] arr$ = pairs;
@@ -104,6 +107,35 @@ public class ImageHandler extends TagNodeHandler {
 		}
 
 		return style;
+	}
+
+	protected Bitmap loadBitmap(String url) {
+		Bitmap bitmap = getBitmapFromMemCache(url);
+		if(bitmap == null) {
+			bitmap = loadBitmapFromNetwork(url);
+			addBitmapToMemoryCache(url, bitmap);
+			return bitmap;
+		} else {
+			return bitmap;
+		}
+	}
+
+	protected Bitmap loadBitmapFromNetwork(String url) {
+		try {
+			return BitmapFactory.decodeStream(new URL(url).openStream());
+		} catch (IOException io) {
+			return null;
+		}
+	}
+
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (getBitmapFromMemCache(key) == null) {
+			mMemoryCache.put(key, bitmap);
+		}
+	}
+
+	public Bitmap getBitmapFromMemCache(String key) {
+		return mMemoryCache.get(key);
 	}
 
 }
