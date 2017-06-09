@@ -446,6 +446,37 @@ public class CSSCompiler {
             }
         }
 
+        if ( "width".equals( key ) ) {
+
+            final StyleValue width = StyleValue.parse(value);
+            if ( width != null ) {
+                return new StyleUpdater() {
+                    @Override
+                    public Style updateStyle(Style style, HtmlSpanner spanner) {
+                        return style.setWidth( width );
+                    }
+                };
+            } else {
+                Log.e("CSSCompiler", "Could not parse width " + value );
+                return null;
+            }
+        }
+
+        if ( "height".equals( key ) ) {
+
+            final StyleValue height = StyleValue.parse(value);
+            if ( height != null ) {
+                return new StyleUpdater() {
+                    @Override
+                    public Style updateStyle(Style style, HtmlSpanner spanner) {
+                        return style.setWidth( height );
+                    }
+                };
+            } else {
+                Log.e("CSSCompiler", "Could not parse height " + value );
+                return null;
+            }
+        }
 
         if ( "border".equals( key ) ) {
            return parseBorder( value );
