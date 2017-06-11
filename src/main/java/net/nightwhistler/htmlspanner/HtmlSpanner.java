@@ -94,8 +94,7 @@ public class HtmlSpanner {
      * Creates a new HtmlSpanner using a default HtmlCleaner instance.
      */
     public HtmlSpanner(Context context) {
-        this(createHtmlCleaner(), new SystemFontResolver());
-        this.context = context;
+        this(createHtmlCleaner(), new SystemFontResolver(), context);
     }
 
     /**
@@ -105,10 +104,11 @@ public class HtmlSpanner {
      *
      * @param cleaner
      */
-    public HtmlSpanner(HtmlCleaner cleaner, FontResolver fontResolver) {
+    public HtmlSpanner(HtmlCleaner cleaner, FontResolver fontResolver, Context context) {
         this.htmlCleaner = cleaner;
         this.fontResolver = fontResolver;
         this.handlers = new HashMap<String, TagNodeHandler>();
+        this.context = context;
 
         registerBuiltInHandlers();
     }
