@@ -47,10 +47,12 @@ import java.net.URL;
 public class ImageHandler extends TagNodeHandler {
 
 	private LruCache<String, Bitmap> mMemoryCache;
+	private final float scale;
 
-	public ImageHandler() {
+	public ImageHandler(float scale) {
 		final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 		final int cacheSize = maxMemory / 8;
+		this.scale = scale;
 		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 			@Override
 			protected int sizeOf(String key, Bitmap bitmap) {
@@ -74,9 +76,13 @@ public class ImageHandler extends TagNodeHandler {
 		Bitmap bitmap = this.loadBitmap(src);
 		if(bitmap != null) {
 			BitmapDrawable drawable = new BitmapDrawable(bitmap);
-			drawable.setBounds(0, 0,
-					widthFromStyles != null ? widthFromStyles.getIntValue() : ParseUtils.parseIntegerSafe(width, bitmap.getWidth() - 1),
-					heightFromStyles != null ? heightFromStyles.getIntValue() : ParseUtils.parseIntegerSafe(height, bitmap.getHeight() - 1));
+			int imageWidth = (int) ((widthFromStyles != null
+					? widthFromStyles.getIntValue()
+						: ParseUtils.parseIntegerSafe(width, bitmap.getWidth() - 1)) * scale);
+			int imageHeight = (int) ((heightFromStyles != null
+					? heightFromStyles.getIntValue()
+						: ParseUtils.parseIntegerSafe(height, bitmap.getHeight() - 1)) * scale);
+			drawable.setBounds(0, 0, imageWidth, imageHeight);
 			stack.pushSpan(new ImageSpan(drawable), start, builder.length());
 		}
 	}
