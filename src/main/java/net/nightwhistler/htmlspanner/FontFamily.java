@@ -26,6 +26,8 @@ public class FontFamily {
 
 	private Typeface italicTypeface;
 
+	private Typeface underlineTypeface;
+
 	private Typeface boldItalicTypeface;
 
 	private String name;
@@ -71,12 +73,20 @@ public class FontFamily {
 		return italicTypeface;
 	}
 
+	public Typeface getUnderlineTypeface() {
+		return underlineTypeface;
+	}
+
 	public boolean isFakeBold() {
 		return boldTypeface == null;
 	}
 
 	public boolean isFakeItalic() {
 		return italicTypeface == null;
+	}
+
+	public boolean isFakeUnderline() {
+		return underlineTypeface == null;
 	}
 
     public String toString() {

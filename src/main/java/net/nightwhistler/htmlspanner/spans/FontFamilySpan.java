@@ -27,6 +27,7 @@ public class FontFamilySpan extends TypefaceSpan {
 
 	private boolean bold;
 	private boolean italic;
+	private boolean underline;
 
 	public FontFamilySpan(FontFamily type) {
 		super(type.getName());
@@ -41,6 +42,10 @@ public class FontFamilySpan extends TypefaceSpan {
 		this.italic = italic;
 	}
 
+	public void setUnderline(boolean underline) {
+		this.underline = underline;
+	}
+
 	public FontFamily getFontFamily() {
 		return fontFamily;
 	}
@@ -51,6 +56,10 @@ public class FontFamilySpan extends TypefaceSpan {
 	
 	public boolean isItalic() {
 		return italic;
+	}
+
+	public boolean isUnderline() {
+		return underline;
 	}
 
 	@Override
@@ -90,6 +99,14 @@ public class FontFamilySpan extends TypefaceSpan {
 			}
 		}
 
+		if(underline) {
+			if(tf.isFakeUnderline()) {
+				paint.setUnderlineText(true);
+			} else {
+				paint.setTypeface(tf.getUnderlineTypeface());
+			}
+		}
+
 		if (bold && italic && tf.getBoldItalicTypeface() != null) {
 			paint.setTypeface(tf.getBoldItalicTypeface());
 		}
@@ -100,6 +117,7 @@ public class FontFamilySpan extends TypefaceSpan {
         builder.append( "  font-family: " + fontFamily.getName() + "\n" );
         builder.append( "  bold: " + isBold() + "\n");
         builder.append( "  italic: " + isItalic() + "\n" );
+		builder.append( "  underline: " + isUnderline() + "\n" );
         builder.append( "}");
 
         return builder.toString();

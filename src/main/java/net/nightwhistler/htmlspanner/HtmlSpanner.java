@@ -373,6 +373,12 @@ public class HtmlSpanner {
         registerHandler("cite", italicHandler);
         registerHandler("dfn", italicHandler);
 
+        TagNodeHandler underlineHandler = new StyledTextHandler(
+                new Style().setFontDecoration(Style.FontDecoration.UNDERLINE));
+
+        registerHandler("u", underlineHandler);
+
+
         TagNodeHandler boldHandler = new StyledTextHandler(
                 new Style().setFontWeight(Style.FontWeight.BOLD));
 
@@ -404,7 +410,7 @@ public class HtmlSpanner {
         Style paragraphStyle = new Style()
                 .setDisplayStyle(Style.DisplayStyle.BLOCK)
                 .setMarginBottom(
-                        new StyleValue(1.0f, StyleValue.Unit.EM));
+                        new StyleValue(0.6f, StyleValue.Unit.EM));
 
 
         TagNodeHandler pHandler = new BorderAttributeHandler(wrap(new StyledTextHandler(paragraphStyle)));

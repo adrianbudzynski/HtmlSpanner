@@ -36,7 +36,8 @@ public class StyleCallback implements SpanCallback {
     @Override
     public void applySpan(HtmlSpanner spanner, SpannableStringBuilder builder) {
 
-        if ( useStyle.getFontFamily() != null || useStyle.getFontStyle() != null || useStyle.getFontWeight() != null ) {
+        if ( useStyle.getFontFamily() != null || useStyle.getFontStyle() != null
+                || useStyle.getFontWeight() != null || useStyle.getFontDecoration() != null ) {
 
             FontFamilySpan originalSpan = getFontFamilySpan(builder, start, end);
             FontFamilySpan newSpan;
@@ -59,6 +60,12 @@ public class StyleCallback implements SpanCallback {
                 newSpan.setItalic( useStyle.getFontStyle() == Style.FontStyle.ITALIC );
             } else if ( originalSpan != null ) {
                 newSpan.setItalic( originalSpan.isItalic() );
+            }
+
+            if(useStyle.getFontDecoration() != null) {
+                newSpan.setUnderline(useStyle.getFontDecoration() == Style.FontDecoration.UNDERLINE);
+            } else if(originalSpan != null) {
+                newSpan.setUnderline(originalSpan.isUnderline());
             }
 
             //Log.d("StyleCallback", "Applying FontFamilySpan from " + start + " to " + end + " on text " + builder.subSequence(start, end));
