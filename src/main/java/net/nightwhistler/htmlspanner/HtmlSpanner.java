@@ -314,14 +314,14 @@ public class HtmlSpanner {
         ContentNode contentNode = (ContentNode) node;
 
         String text = TextUtil.replaceHtmlEntities(
-                contentNode.getContent().toString(), contentNode.isBlank());
+                contentNode.getContent().toString(), true);
 
         if ( isStripExtraWhiteSpace() ) {
             //Replace unicode non-breaking space with normal space.
             text = text.replace( '\u00A0', ' ' );
         }
 
-        if ( text.trim().length() > 0 ) {
+        if ( text.length() > 0 ) {
             builder.append(text);
         }
     }
