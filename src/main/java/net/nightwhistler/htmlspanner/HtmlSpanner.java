@@ -314,7 +314,7 @@ public class HtmlSpanner {
         ContentNode contentNode = (ContentNode) node;
 
         String text = TextUtil.replaceHtmlEntities(
-                contentNode.getContent().toString(), false);
+                contentNode.getContent().toString(), contentNode.isBlank());
 
         if ( isStripExtraWhiteSpace() ) {
             //Replace unicode non-breaking space with normal space.
